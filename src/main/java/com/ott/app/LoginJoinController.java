@@ -78,7 +78,6 @@ public class LoginJoinController {
 		String big = Security.generateSalt();
 		String fat = Security.getbig(u_pwd1, big);
 		
-		System.out.println("U_ID ---------------------------------------->>>>>> "+u_id);
 
 		UserVO vo = Ldao.login(u_id, fat);
 		
@@ -126,9 +125,6 @@ public class LoginJoinController {
 	
 	@RequestMapping("/mail_confirm")
 	public String mail_confirm(String email, String auth_key) {
-		
-		System.out.println(email);
-		System.out.println(auth_key);
 		
 		if(email != null && auth_key != null) {
 			
