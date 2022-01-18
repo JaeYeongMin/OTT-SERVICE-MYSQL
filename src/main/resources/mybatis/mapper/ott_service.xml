@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ott_service">
+
+<select id="bbs_all" resultType="com.ott.platform.vo.PlatFormVO" parameterType="java.util.Map">
+	SELECT *
+	FROM OTT_SERVICE
+	WHERE OTT_IDX BETWEEN #{begin} AND #{end}
+</select>
+
+<select id="bbsTotal" resultType="int">
+	SELECT COUNT(*)
+	FROM OTT_SERVICE
+</select>
+
+<select id="searchName" resultType="com.ott.platform.vo.PlatFormVO" parameterType="String">
+	SELECT *
+	FROM OTT_SERVICE
+	WHERE TITLE = #{title}
+</select>
+
+<select id="minIdx" resultType="int" parameterType="String">
+	SELECT MIN(OTT_IDX)
+	FROM OTT_SERVICE
+	WHERE PLATFORM = #{platform}
+</select>
+
+<select id="random" resultType="com.ott.platform.vo.PlatFormVO" parameterType="int">
+	SELECT *
+	FROM OTT_SERVICE
+	WHERE OTT_IDX = #{ott_idx}
+</select>
+
+</mapper>

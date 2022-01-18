@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="user_service">
+
+<insert id="naver_login" parameterType="com.ott.user.vo.UserVO">
+	INSERT INTO OTT_USER (U_IDX, U_NAME, U_EMAIL, U_ID, U_PWD1, SOCIAL)
+			VALUES(OTT_USER_SEQ.NEXTVAL, #{U_NAME}, #{U_EMAIL}, #{U_ID}, #{U_PWD1}, 'NAVER')
+</insert>
+
+<insert id="kakao_login" parameterType="com.ott.user.vo.UserVO">
+	INSERT INTO OTT_USER (U_IDX, U_NAME, U_EMAIL, U_ID, U_PWD1, SOCIAL)
+		VALUES(OTT_USER_SEQ.NEXTVAL, #{U_NAME}, #{U_EMAIL}, #{U_ID}, #{U_PWD1}, 'KAKAO')
+</insert>
+
+
+<select id="user_info" resultType="com.ott.user.vo.UserVO" parameterType="String">
+	SELECT *
+	FROM OTT_USER
+	WHERE U_ID = #{U_ID}
+</select>
+
+<select id="email_info" resultType="com.ott.user.vo.UserVO" parameterType="String">
+	SELECT *
+	FROM OTT_USER
+	WHERE U_EMAIL = #{U_EMAIL}
+</select>
+
+<insert id="user_join" parameterType="com.ott.user.vo.UserVO">
+	INSERT INTO OTT_USER (U_IDX, U_ID, U_NAME, U_EMAIL, U_PWD1, SALT, U_LEVEL, SOCIAL)
+			VALUES(OTT_USER_SEQ.nextval, #{u_id}, #{u_name}, #{u_email}, #{u_pwd1}, #{big_fat}, 1,'VVF')
+</insert>
+
+<select id="id_find" resultType="com.ott.user.vo.UserVO" parameterType="String">
+    SELECT U_ID, U_NAME, U_EMAIL FROM OTT_USER WHERE U_EMAIL = #{u_email}
+</select>
+
+<select id="checkUser" resultType="com.ott.user.vo.UserVO" parameterType="Map">
+	SELECT * FROM OTT_USER WHERE U_ID = #{u_id} AND U_EMAIL = #{u_email} 
+</select>
+
+<update id="resetPwd" parameterType="Map">
+	UPDATE OTT_USER
+	SET U_PWD1 = #{u_pwd1}
+	WHERE U_EMAIL = #{u_email}
+</update>
+
+<!-- 회원가입 시 auth_key 업데이트 -->
+<update id="auth_Key" parameterType="Map">
+	
+		UPDATE OTT_USER
+		
+		SET
+		AUTH_KEY = #{auth_key}
+		
+		WHERE U_ID = #{u_id}
+	
+</update>
+
+<!-- 사용자가 인증메일을 클릭했을때 mail_check 와 auth_status 
+     컬럼을 1로 업데이트 해줍니다
+     조건은 사용자 이메일 & auth_key를 조회한 결과가 일치했을때 입니다-->
+<update id="mail_confirm" parameterType="Map">
+		
+		UPDATE OTT_USER
+		
+		SET
+		 	MAIL_CHECK = 1,
+		 	AUTH_STATUS =1
+		
+		WHERE U_EMAIL = #{u_email} AND AUTH_KEY = #{auth_key}
+	</update>
+
+
+<!-- login -->
+<!-- 프로젝트 개발 테스트가 거의 끝나갈때쯤 로그인은 auth_status 가 1일 경우에 로그인 할 예정입니다 -->
+<select id="login" resultType="com.ott.user.vo.UserVO"
+		parameterType="Map">
+
+		SELECT * 
+		FROM OTT_USER
+		WHERE U_ID = #{U_ID} AND U_PWD1 = #{U_PWD1}
+
+</select>
+
+<!-- 유저 프로필 사진 업로드 -->
+<update id="user_img" parameterType="com.ott.user.vo.UserVO">
+	UPDATE OTT_USER
+	SET
+		<if test="oname != null ">
+			ONAME=#{ONAME}
+			, FNAME=#{FNAME}
+		</if>
+		<if test="oname != null and u_name != null">,</if>
+		<if test="u_name != null">
+			U_NAME=#{U_NAME}
+		</if>
+		<if test="oname != null and u_name != null and about_me != null">,</if>
+		<if test="oname != null and about_me != null and u_name == null">,</if>
+		<if test="u_name != null and about_me != null and oname == null">,</if>
+		<if test="about_me != null">
+			ABOUT_ME=#{ABOUT_ME}
+		</if>
+	WHERE U_IDX=#{U_IDX}
+		
+</update>
+
+<!-- 유저 종합 정보 -->
+<select id="user_info1" resultType="com.ott.user.vo.UserVO" parameterType="String">
+	SELECT A.*, B.REVIEWEA
+	FROM (SELECT * FROM OTT_USER WHERE U_IDX=#{U_IDX}) A, (SELECT COUNT(CONTENT) AS REVIEWEA FROM OTT_BBS WHERE U_IDX=#{U_IDX}) B
+</select>
+
+<!-- 유저 회원가입 시 기본 EXP 10 설정 -->
+<update id="default_exp" parameterType="String">
+	
+		UPDATE OTT_USER
+			SET 
+				EXP = 10
+		WHERE U_ID = #{U_ID}
+		
+	</update>
+
+<!-- 유저 기존 비밀번호 확인 | 유저 검색 -->
+<select id="user_pw_check" parameterType="Map" resultType="com.ott.user.vo.UserVO">
+	SELECT * FROM OTT_USER
+	WHERE U_IDX = #{U_IDX} AND U_ID = #{U_ID}
+</select>
+	
+<!-- 유저 비밀번호 변경 -->
+<update id="change_pwd" parameterType="Map">
+	UPDATE OTT_USER
+		SET U_PWD1 = #{U_PWD1}
+	WHERE U_IDX = #{U_IDX} AND U_ID = #{U_ID}
+</update>
+
+<select id="get_user_level" resultType="com.ott.user.vo.UserVO" parameterType="String">
+		SELECT
+		EXP, U_LEVEL FROM OTT_USER
+		WHERE U_IDX = #{U_IDX} 
+	
+</select>
+	
+</mapper>
